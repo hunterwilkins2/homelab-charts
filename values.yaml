@@ -1,0 +1,49 @@
+fullnameOverride: ""
+kind: Deployment # either Deployment or StatefulSet
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: "1.16.1"
+  pullPolicy: IfNotPresent
+
+volumes: []
+# - name: foo-claim
+#   type: NFS -- either NFS or local
+#   mountPath: "/mnt" -- path to inside container
+#   accessModes:
+#     - ReadWriteOnce
+#   storage: 1Gi
+
+service:
+  type: ClusterIP
+  port: 80
+  # Port container is running on
+  targetPort: 80
+  # Optional field
+  # Use port range (30000-32767)
+  nodePort: ""
+
+ingress:
+  enabled: false
+  annotations:
+    spec.ingressClassName: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+  # Must be *.hunterwilkins.dev
+  - host: example.hunterwilkins.dev
+    paths:
+    - path: /
+      pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    # Must be *.hunterwilkins.dev
+    - example.hunterwilkins.dev
+    secretName: example-tls-secret
+
+configmap: {}
+# - key: value
+
+secret: {}
+# - key: value
