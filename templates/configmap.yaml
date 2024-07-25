@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    name: {{ template "fullname" .}}-configmap
+    name: {{ template "homelab.fullname" .}}-configmap
 data:
     {{- .Values.configmap | toYaml | nindent 2 -}}
 {{- end -}}

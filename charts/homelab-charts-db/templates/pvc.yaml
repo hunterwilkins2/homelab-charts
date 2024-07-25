@@ -1,0 +1,18 @@
+{{- range .Values.volumes -}}
+{{- $isLocal := eq .type "local" -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ .name }}
+    labels: 
+      type: {{ .type }}
+spec:
+  storageClassName: {{ ternary "local-path" "nfs-client" $isLocal }}
+  accessModes:
+  {{- range .accessModes }}
+    - {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .storage }}
+{{ end }}

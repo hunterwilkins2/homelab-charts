@@ -1,6 +1,10 @@
-fullnameOverride: ""
+global:
+  fullnameOverride: ""
+
 kind: Deployment # either Deployment or StatefulSet
 replicaCount: 1
+command: ""
+args: []
 
 image:
   repository: nginx
@@ -43,7 +47,10 @@ ingress:
     secretName: example-tls-secret
 
 configmap: {}
-# - key: value
+# key: value
 
-secret: {}
-# - key: value
+secrets: {}
+# key: value
+
+homelab-charts-db:
+  enable: false

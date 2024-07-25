@@ -1,0 +1,6 @@
+dependencies:
+- name: db
+  repository: file://charts/homelab-charts-db
+  version: 0.1.0
+digest: sha256:fdc42f97dc5258356e290d70c385a57a6754ef3e7c1f2b58717eeca985fb3db1
+generated: "2024-07-22T23:14:14.019639414-04:00"

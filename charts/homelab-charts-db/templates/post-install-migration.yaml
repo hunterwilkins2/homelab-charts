@@ -1,0 +1,27 @@
+{{- if .Values.migration.enable -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+    name: {{ template "homelab.db.fullname" . }}-migration
+    annotations:
+        "helm.sh/hook": post-install,post-upgrade
+        "helm.sh/hook-weight": "-5"
+        "helm.sh/hook-delete-policy": hook-succeeded
+spec:  
+    template:
+        metadata:
+            name: {{ template "homelab.db.fullname" . }}-migration
+        spec:
+            restartPolicy: Never
+            containers:
+            - name: {{ template "homelab.db.fullname" . }}-db-migration
+              image: "{{ .Values.migration.image }}:{{ default "latest" .Values.migration.tag }}"
+              imagePullPolicy: {{ .Values.migration.pullPolicy }}
+              {{- if .Values.migration.env }}
+              env:
+              {{- range $key, $value := .Values.migration.env }}
+              - name: {{ $key }}
+                value: {{ $value | quote }}
+              {{- end }}
+              {{- end }}
+{{- end -}}

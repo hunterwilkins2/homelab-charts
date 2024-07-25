@@ -1,0 +1,2 @@
+Homelab database chart has been successfully released.
+Your release is named {{ .Release.Name }}.

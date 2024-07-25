@@ -1,0 +1,37 @@
+enable: true
+
+kind: StatefulSet
+replicaCount: 1
+
+image:
+  repository: mariadb
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+volumes: []
+# - name: foo-claim
+#   type: NFS -- either NFS or local
+#   mountPath: "/mnt" -- path to inside container
+#   accessModes:
+#     - ReadWriteOnce
+#   storage: 1Gi
+
+service:
+  type: ClusterIP
+  port: 3306
+  # Port container is running on
+  targetPort: 3306
+  # Optional field
+  # Use port range (30000-32767)
+  nodePort: ""
+
+secrets: {}
+# - key: value
+
+migration:
+  enable: false
+  image: ""
+  tag: ""
+  pullPolicy: IfNotPresent
+
+  env: {}

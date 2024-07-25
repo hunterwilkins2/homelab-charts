@@ -1,5 +1,9 @@
+Thank you for installing {{ .Chart.Name }}.
+
 Your chart has been successfully released.
+Your release is named {{ .Release.Name }}.
 
 To check it's state, run:
 
-  helm status {{.Release.Name}}
+  $ helm status {{.Release.Name}}
+  $ helm get all {{ .Release.Name }}

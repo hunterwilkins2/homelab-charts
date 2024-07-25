@@ -1,45 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "homelab.fullname" . }}
+  name: {{ template "homelab.db.fullname" . }}
   labels:
-    app: {{ template "homelab.fullname" . }}
+    app: {{ template "homelab.db.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: {{ .Release.Name }}
 spec:
   selector:
     matchLabels:
-      app: {{ template "homelab.fullname" . }}
+      app: {{ template "homelab.db.fullname" . }}
   replicas: {{ .Values.replicaCount }} 
   template:
     metadata:
       labels:
-        app: {{ template "homelab.fullname" . }}
+        app: {{ template "homelab.db.fullname" . }}
     spec:
       containers:
       - name: {{ .Release.Name }}
         image: "{{ .Values.image.repository }}:{{ default "latest" .Values.image.tag }}"
-        {{- if .Values.command }}
-        command: [{{ .Values.command }}]
-        args: 
-        {{- range .Values.args }}
-          - {{ . | quote }}
-        {{- end }}
-        {{- end }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - protocol: TCP
           containerPort: {{ .Values.service.targetPort }}
-        {{- if or (gt (len .Values.secrets) 0) (gt (len .Values.configmap) 0) }}
+        {{- if gt (len .Values.secrets) 0}}
         env:
-          {{- $fullname := include "homelab.fullname" . }}
-          {{- range $name, $value := .Values.configmap }}
-          - name: {{ $name }}
-            valueFrom:
-              configMapKeyRef:
-                name: {{ $fullname }}-configmap
-                key: {{ $name }}
-          {{- end }}
+          {{- $fullname := include "homelab.db.fullname" . }}
           {{- range $name, $value := .Values.secrets }}
           - name: {{ $name }}
             valueFrom:
@@ -50,12 +36,12 @@ spec:
         {{- end }}
         {{- range .Values.volumes }}
         volumeMounts:
-          - name: {{ .name }}-storage
+          - name: {{ .name }}-db-storage
             mountPath: {{ .mountPath }}
         {{- end }}
       {{- range .Values.volumes }}
       volumes:
-        - name: {{ .name }}-storage
+        - name: {{ .name }}-db-storage
           persistentVolumeClaim:
             claimName: {{ .name }}
       {{- end }}
