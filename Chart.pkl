@@ -1,7 +1,7 @@
 class Global {
   nameOverride: String = ""
-  labels: Mapping<String, String>
-  annotations: Mapping<String, String>
+  labels: Mapping<String(length > 0), String>
+  annotations: Mapping<String(length > 0), String>
 }
 
 global: Global 
@@ -35,6 +35,6 @@ volumes: Listing<Volume>
 
 typealias Value = Int|String|Boolean
 
-configmap: Mapping<String, Value>
+configmap: Mapping<String(length > 0), Value>
 
-secrets: Mapping<String, Value>
+secrets: Mapping<String(length > 0), Value>
