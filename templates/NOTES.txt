@@ -1,0 +1,55 @@
+# {{ include "homelab.fullname" . }} Helm Chart Deployment
+
+## {{ include "homelab.fullname" . }} Chart Information
+   - Release Name: {{ .Release.Name }}
+   - Namespace: {{ .Release.Namespace }}
+   - Chart Name: {{ .Chart.Name }}
+   - Chart Version {{ .Chart.Version }}
+{{ if .Values.deployment.enabled }}
+## {{ include "homelab.fullname" . }} Deployment Information 
+   - Image: {{ .Values.deployment.image }}:{{ .Values.deployment.tag }}
+   - Pull Policy: {{ .Values.deployment.pullPolicy }}
+   {{- if gt (int .Values.deployment.replicas) 1 }}
+   - Replicas: {{ .Values.deployment.replicas }}
+   {{- end }}
+   {{- if .Values.deployment.rollingUpdate }} 
+   - Rolling Update: Enabled
+   {{- end }}
+{{ end }}
+{{- if .Values.service.enabled }}
+## {{ include "homelab.fullname" . }} Service Information 
+   - Service Name: {{ include "homelab.fullname" . }}-service
+   - Service Type: {{ .Values.service.type }}
+   - Service Port: {{ .Values.service.port }}
+{{ if or (ne .Values.service.type "ClusterIP") .Values.ingress.enabled }}
+## Accessing {{ include "homelab.fullname" . }}:
+   - Once the service is ready, you can access {{ include "homelab.fullname" . }} at the following endpoint:
+{{- if .Values.ingress.enabled }}
+     {{ ternary "https" "http" .Values.ingress.tls }}://{{ .Values.ingress.host }}{{ .Values.ingress.path }}
+     {{ if .Values.ingress.tls }}
+     Note: It may take some time Cert Manager to generate a certificate.
+
+     View certificate status with:
+     kubectl get certificate {{ include "homelab.fullname" . }}-certificate --namespace {{ .Release.Namespace }}
+     {{- end }}
+{{ end }}
+{{- if eq .Values.service.type "NodePort" }}
+     http://10.0.0.10:{{ .Values.service.nodePort }}
+{{ end }}
+{{- if eq .Values.service.type "LoadBalancer" }}
+     http://<EXTERNAL-IP>
+
+     Note: It may take some time for the LoadBalancer to get an external IP.
+{{ end }}
+{{- end }}
+{{- end }}
+## Useful Commands
+  - Check the {{ include "homelab.fullname" . }} Deployment Status:
+    helm status {{ .Release.Name }}
+
+  - Get Detailed Information about the {{ include "homelab.fullname" . }} Deployment:
+    helm get all {{ .Release.Name }}
+
+## Clean Up
+   - To uninstall/delete the {{ include "homelab.fullname" . }} deployment, run:
+     helm uninstall {{ .Release.Name }}
