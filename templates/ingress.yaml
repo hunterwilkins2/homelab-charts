@@ -1,0 +1,32 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "homelab.fullname" . }}-ingress
+  labels:
+    {{- include "homelab.labels" . | nindent 4 }} 
+  annotations:
+    spec.ingressClassName: traefik
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer }}
+  {{- if gt (len .Values.global.annotations) 0 }}
+    {{- include "homelab.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  {{ if .Values.ingress.tls -}}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ include "homelab.fullname" . }}-tls-secret
+  {{ end -}}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path | quote }}
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ include "homelab.fullname" . }}-service
+                port:
+                  number: {{ .Values.service.port }}
+{{- end -}}

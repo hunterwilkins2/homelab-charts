@@ -1,4 +1,4 @@
-typealias Key = Key
+typealias Key = String(length > 0)
 
 class Global {
   nameOverride: String = ""
@@ -21,6 +21,24 @@ class Service {
 }
 
 service: Service  
+
+typealias ClusterIssuer = "letsencrypt-prod"|"letsencrypt-staging"
+typealias PathType = "ImplementationSpecific"|"Exact"|"Prefix"
+
+class Ingress {
+  enabled: Boolean(this.implies(host != null)) = false
+  tls: Boolean = false
+  clusterIssuer: ClusterIssuer = "letsencrypt-prod"
+  host: String(
+    matches(Regex(#"^\w+(\.homelab\.local|\.hunterwilkins\.dev|\.hivestack\.dev)$"#))
+  )?
+  path: String(
+    matches(Regex(#"^/.*$"#))
+  ) = "/"
+  pathType: PathType = "ImplementationSpecific"
+}
+
+ingress: Ingress
 
 typealias StorageClass = "local-path"|"nfs-client"|"lily-nfs-client"
 typealias AccessModes = "ReadWriteOnly"|"ReadOnlyMany"|"ReadWriteMany"|"ReadWriteOncePod"
