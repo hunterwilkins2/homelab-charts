@@ -25,10 +25,21 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-      - name: Run chart-releaser
+      - name: Create Helm Release
         uses: helm/chart-releaser-action@v1.6.0
         with:
           skip_existing: true
           packages_with_index: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Host pkl modules with pages
+        run: |
+          git fetch
+          git checkout gh-pages
+          git checkout master -- charts/homelab-charts/Chart.pkl charts/homelab-charts/values.pkl
+          mv charts/homelab-charts/*.pkl .
+          rm -r charts
+          git add -A
+          git diff-index --quiet HEAD || git commit -am "moved pkl modules to gh-pages"
+          git push origin gh-pages
