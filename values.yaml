@@ -1,0 +1,27 @@
+name: nginx
+global:
+  labels:
+    test-label: this is a test
+  annotations: {}
+deployment:
+  enabled: true
+  type: Deployment
+  replicas: 1
+  image: nginx
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  enabled: true
+  type: ClusterIP
+  protocol: TCP
+  port: 80
+  targetPort: 80
+ingress:
+  enabled: false
+  tls: false
+  clusterIssuer: letsencrypt-prod
+  path: /
+  pathType: ImplementationSpecific
+volumes: []
+configmap: {}
+secrets: {}

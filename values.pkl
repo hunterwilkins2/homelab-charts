@@ -1,0 +1,24 @@
+amends "Chart.pkl"
+
+name = "nginx"
+
+deployment = new Deployment {
+  image = "nginx"
+}
+
+service = new Service {
+  targetPort = 80
+}
+
+ingress = new Ingress {
+  enabled = false
+}
+
+volumes = new {
+}
+
+configmap = new {
+}
+
+secrets = new {
+}
