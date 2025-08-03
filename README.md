@@ -61,12 +61,12 @@ version: 0.1.0
 appVersion: "1.0.0"
 dependencies:
 - name: homelab-charts
-  version: "0.1.0"
-  repository: hunterwilkins2
+  version: "0.2.0"
+  repository: "https://hunterwilkins2.github.io/homelab-charts"
   alias: trolly
 - name: homelab-charts
-  version: "0.1.0"
-  repository: hunterwilkins2
+  version: "0.2.0"
+  repository: "https://hunterwilkins2.github.io/homelab-charts"
   alias: trolly-db
 ```
 
@@ -121,7 +121,12 @@ frontend = (Chart) {
 }
 ```
 
-3. Deploy the chart
+3. Download Dependencies
+```sh
+helm dependency build
+```
+
+4. Deploy the chart
 ```sh
 helm pkl install --pkl-template values.pkl [RELEASE] . --namespace [NAMESPACE] --create-namespace
 ```
