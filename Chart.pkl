@@ -1,7 +1,9 @@
+typealias Key = Key
+
 class Global {
   nameOverride: String = ""
-  labels: Mapping<String(length > 0), String>
-  annotations: Mapping<String(length > 0), String>
+  labels: Mapping<Key, String>
+  annotations: Mapping<Key, String>
 }
 
 global: Global 
@@ -35,6 +37,6 @@ volumes: Listing<Volume>(isDistinctBy((it) -> it.name))
 
 typealias Value = Int|String|Boolean
 
-configmap: Mapping<String(length > 0), Value>
+configmap: Mapping<Key, Value>
 
-secrets: Mapping<String(length > 0), Value>
+secrets: Mapping<Key, Value>
