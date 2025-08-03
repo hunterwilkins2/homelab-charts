@@ -1,0 +1,25 @@
+{{- $root := . -}}
+{{- range .Values.volumes -}}
+{{- if not .skipCreate -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .name }}
+  labels:
+    type: {{ .type }}
+    {{- include "homelab.labels" $root | nindent 4 }} 
+  {{- if gt (len $root.Values.global.annotations) 0 }}
+  annotations:
+    {{- include "homelab.annotations" $root | nindent 4 }}
+  {{- end }}
+spec:
+  storageClassName: {{ .type }}
+  accessModes:
+  {{- range .accessModes }}
+    - {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .storage }}
+{{- end -}}
+{{- end -}}

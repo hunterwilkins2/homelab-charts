@@ -20,6 +20,19 @@ class Service {
 
 service: Service  
 
+typealias StorageClass = "local-path"|"nfs-client"|"lily-nfs-client"
+typealias AccessModes = "ReadWriteOnly"|"ReadOnlyMany"|"ReadWriteMany"|"ReadWriteOncePod"
+
+class Volume {
+  name: String(matches(Regex(#"^[\w-]+-(claim|pvc)$"#)))
+  skipCreate: Boolean = false
+  type: StorageClass 
+  accessModes: Listing<AccessModes>(length > 0 && isDistinct)
+  storage: String(matches(Regex(#"^\d+[GM]i$"#)))
+}
+
+volumes: Listing<Volume>
+
 typealias Value = Int|String|Boolean
 
 configmap: Mapping<String, Value>
