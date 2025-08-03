@@ -1,12 +1,13 @@
+name: String 
+
 typealias Key = String(length > 0)
 
 class Global {
-  nameOverride: String = ""
   labels: Mapping<Key, String>
   annotations: Mapping<Key, String>
 }
 
-global: Global 
+global: Global
 
 typealias PullPolicy = "IfNotPresent"|"Always"|"Never"
 typealias DeploymentType = "Deployment"|"StatefulSet"|"DaemonSet"
