@@ -31,7 +31,7 @@ class Volume {
   storage: String(matches(Regex(#"^\d+[GM]i$"#)))
 }
 
-volumes: Listing<Volume>
+volumes: Listing<Volume>(isDistinctBy((it) -> it.name))
 
 typealias Value = Int|String|Boolean
 
