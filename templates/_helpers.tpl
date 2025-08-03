@@ -20,4 +20,8 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- define "homelab.annotations" -}}
 {{- .Values.global.annotations | toYaml -}}
 {{- end -}}
+
+{{- define "homelab.selectors" -}}
+app.kubernetes.io/name: {{ include "homelab.fullname" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}

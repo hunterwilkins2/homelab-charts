@@ -1,0 +1,28 @@
+{{- if .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "homelab.fullname" . }}-service
+  labels:
+    {{- include "homelab.labels" . | nindent 4 }} 
+  {{- if or (gt (len .Values.global.annotations) 0) (eq .Values.service.type "LoadBalancer") }} 
+  annotations:
+    {{- if eq .Values.service.type "LoadBalancer" }}
+    metallb.io/address-pool: default-pool
+    {{- end }}
+    {{- if gt (len .Values.global.annotations) 0 }}
+    {{- include "homelab.annotations" . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  selector:
+    {{- include "homelab.selectors" . | nindent 4 }}
+  type: {{ .Values.service.type }}
+  ports: 
+    - protocol: {{ .Values.service.protocol | default "TCP" }}
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{ end }}
+{{- end -}}

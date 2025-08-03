@@ -6,6 +6,20 @@ class Global {
 
 global: Global 
 
+typealias ServiceType = "ClusterIP"|"NodePort"|"LoadBalancer"
+typealias Protocol = "TCP"|"UDP"
+
+class Service {
+  enabled: Boolean = true
+  type: ServiceType((this == "NodePort").xor(nodePort == null)) = "ClusterIP"
+  protocol: Protocol = "TCP"
+  port: UInt16 = 80
+  targetPort: UInt16
+  nodePort: UInt16(isBetween(30000, 32767))?
+}
+
+service: Service  
+
 typealias Value = Int|String|Boolean
 
 configmap: Mapping<String, Value>
