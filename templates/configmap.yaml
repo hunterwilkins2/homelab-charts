@@ -3,8 +3,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "homelab.fullname" . }}-configmap
-  {{ include "homelab.labels" . }} 
-  {{- include "homelab.annotations" . }}
+  labels:
+    {{- include "homelab.labels" . | nindent 4 }} 
+  {{- if gt (len .Values.global.annotations) 0 }}
+  annotations:
+    {{- include "homelab.annotations" . | nindent 4 }}
+  {{- end }}
 data:
   {{- .Values.configmap | toYaml | nindent 2 -}}
 {{- end -}}
