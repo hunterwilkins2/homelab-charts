@@ -1,0 +1,140 @@
+{{- if .Values.deployment.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "homelab.fullname" . }}
+  labels:
+    {{- include "homelab.labels" . | nindent 4 }} 
+  {{- if gt (len .Values.global.annotations) 0 }}
+  annotations:
+    {{- include "homelab.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "homelab.selectors" . | nindent 6 }}
+  {{- if .Values.deployment.rollingUpdate }}
+  {{- if ne .Values.deployment.type "DaemonSet" }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.deployment.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ ternary .Values.deployment.rollingUpdate.maxUnavailable 0 (ne (int .Values.deployment.replicas) 1) }}
+  {{- else }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.deployment.rollingUpdate.maxSurge }}
+      maxUnavailable: 0
+  {{- end }}
+  minReadySeconds: {{ .Values.deployment.rollingUpdate.minReadySeconds }}
+  progressDeadlineSeconds: {{ .Values.deployment.rollingUpdate.progressDeadlineSeconds }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "homelab.selectors" . | nindent 8 }}
+    spec:
+      {{- if .Values.deployment.securityContext }}
+      securityContext:
+        {{- .Values.deployment.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ include "homelab.fullname" . }}
+        image: "{{ .Values.deployment.image }}:{{ .Values.deployment.tag }}"
+        imagePullPolicy: {{ .Values.deployment.pullPolicy }}
+        ports:
+          - containerPort: {{ .Values.service.port }}
+            protocol: {{ .Values.service.protocol }}
+        {{- if or (gt (len .Values.secrets) 0) (gt (len .Values.configmap) 0) }}
+        {{- if .Values.deployment.command }}
+        command: [{{ .Values.deployment.command | quote }}]
+        {{- if .Values.deployment.args }}
+        args:
+        {{- range .Values.deployment.args }}
+          - {{ . | quote }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.deployment.rollingUpdate }}
+        lifecycle:
+          # This "sleep" preStop hook delays the 
+          # pod shutdown until after the service 
+          # registry removes the matching endpoint
+          preStop:
+            exec:
+              command:
+                - "/bin/sleep"
+                - "20"
+        {{- end }}
+        {{- if .Values.deployment.readinessProbe }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.deployment.readinessProbe.path }}
+            port: {{ .Values.deployment.readinessProbe.port }}
+            {{- if.Values.deployment.readinessProbe.headers }}
+            httpHeaders:
+            {{- range $key, $value := .Values.deployment.readinessProbe.headers }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+          initialDelaySeconds: {{ .Values.deployment.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.deployment.readinessProbe.periodSeconds }}
+          successThreshold: {{ .Values.deployment.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.deployment.readinessProbe.failureThresshold }}
+        {{- end }}
+        {{- if .Values.deployment.livenessProbe }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.deployment.livenessProbe.path }}
+            port: {{ .Values.deployment.livenessProbe.port }}
+            {{- if.Values.deployment.livenessProbe.headers }}
+            httpHeaders:
+            {{- range $key, $value := .Values.deployment.livenessProbe.headers }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+          initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
+          successThreshold: {{ .Values.deployment.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
+        {{- end }}
+        env:
+          {{- $fullname := include "homelab.fullname" . }}
+          {{- range $key, $value := .Values.configmap }}
+          - name: {{ $key }}
+            valueFrom:
+              configMapKeyRef:
+                name: {{ $fullname }}-configmap
+                key: {{ $key }}
+          {{- end }}
+          {{- range $key, $value := .Values.secrets }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $fullname }}-secret
+                key: {{ $key }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.volumes }}
+        volumeMounts: 
+        {{- range .Values.volumes }}
+        {{- $name := .name -}}
+        {{- range .mountPaths }} 
+          - name: {{ $name }}-storage
+            mountPath: {{ . | quote }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- if .Values.volumes }}
+      volumes:
+      {{- range .Values.volumes }}
+        - name: {{ .name }}-storage
+          persistentVolumeClaim:
+            claimName: {{ .name }}
+      {{- end }}
+      {{- end }}
+{{- end -}}
