@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  homelab-charts:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-08-03T20:40:54.937496894Z"
+    description: A Umbrella chart for kubernetes homelab
+    digest: 614d5b3e0b31855b484a4d036823b8ce877129ac0354bf38f45100c4c3fe5460
+    name: homelab-charts
+    type: application
+    urls:
+    - homelab-charts-0.2.0.tgz
+    version: 0.2.0
+generated: "2025-08-03T20:40:54.937503276Z"
