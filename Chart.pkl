@@ -1,0 +1,110 @@
+name: String 
+
+typealias Key = String(length > 0)
+
+class Global {
+  labels: Mapping<Key, String>
+  annotations: Mapping<Key, String>
+}
+
+global: Global
+
+typealias PullPolicy = "IfNotPresent"|"Always"|"Never"
+typealias DeploymentType = "Deployment"|"StatefulSet"|"DaemonSet"
+
+class SecurityContext {
+  runAsUser: Int(this > 0)
+  runAsGroup: Int(this > 0)
+  fsGroup: Int(this > 0)
+  supplementalGroups: Listing<Int(this > 0)>(length > 0 && isDistinct)
+}
+
+class RollingUpdate {
+  maxSurge: UInt = 1
+  maxUnavailable: UInt = 0
+  minReadySeconds: UInt = 5
+  progressDeadlineSeconds: UInt = 600
+}
+
+class Probe {
+  path: String(length > 0)
+  port: UInt16
+  headers: Mapping<Key, String>
+  initialDelaySeconds: UInt = 5
+  periodSeconds: UInt = 5
+  successThreshold: UInt = 1
+  failureThreshold: UInt = 3
+}
+
+class Deployment {
+  enabled: Boolean = true
+  type: DeploymentType = "Deployment"
+  replicas: UInt(this >= 1) = 1
+  image: String(length > 0)
+  tag: String(length > 0) = "latest"
+  digest: String?
+  pullPolicy: PullPolicy = "IfNotPresent"
+  command: String(length > 0)?
+  args: Listing<String(length > 0)>?
+  securityContext: SecurityContext?
+  rollingUpdate: RollingUpdate((this != null).implies(readinessProbe != null))?
+  readinessProbe: Probe?
+  livenessProbe: Probe(
+    (this != null).implies(readinessProbe != null) &&
+    (this.periodSeconds > readinessProbe.periodSeconds * readinessProbe.failureThreshold)
+  )?
+}
+
+deployment: Deployment
+
+typealias ServiceType = "ClusterIP"|"NodePort"|"LoadBalancer"
+typealias Protocol = "TCP"|"UDP"
+
+class Service {
+  enabled: Boolean = true
+  type: ServiceType((this == "NodePort").xor(nodePort == null)) = "ClusterIP"
+  protocol: Protocol = "TCP"
+  port: UInt16 = 80
+  targetPort: UInt16
+  nodePort: UInt16(isBetween(30000, 32767))?
+}
+
+service: Service  
+
+typealias ClusterIssuer = "letsencrypt-prod"|"letsencrypt-staging"
+typealias PathType = "ImplementationSpecific"|"Exact"|"Prefix"
+
+class Ingress {
+  enabled: Boolean(this.implies(host != null)) = false
+  tls: Boolean = false
+  clusterIssuer: ClusterIssuer = "letsencrypt-prod"
+  host: String(
+    matches(Regex(#"^\w+(\.homelab\.local|\.hunterwilkins\.dev|\.hivestack\.dev)$"#))
+  )?
+  path: String(
+    matches(Regex(#"^/.*$"#))
+  ) = "/"
+  pathType: PathType = "ImplementationSpecific"
+}
+
+ingress: Ingress
+
+typealias StorageClass = "local-path"|"nfs-client"|"lily-nfs-client"
+typealias AccessModes = "ReadWriteOnly"|"ReadOnlyMany"|"ReadWriteMany"|"ReadWriteOncePod"
+
+class Volume {
+  name: String(matches(Regex(#"^[\w-]+-(claim|pvc)$"#)))
+  skipCreate: Boolean = false
+  type: StorageClass 
+  accessModes: Listing<AccessModes>(length > 0 && isDistinct)
+  storage: String(matches(Regex(#"^\d+[GM]i$"#)))
+  mountPaths: Listing<String(length > 0)>(length > 0 && isDistinct)
+}
+
+volumes: Listing<Volume>(isDistinctBy((it) -> it.name))
+
+typealias Value = Int|String|Boolean
+
+configmap: Mapping<Key, Value>
+
+secrets: Mapping<Key, Value>
