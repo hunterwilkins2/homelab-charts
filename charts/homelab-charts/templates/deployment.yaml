@@ -42,7 +42,7 @@ spec:
       {{- end }}
       containers:
       - name: {{ include "homelab.fullname" . }}
-        image: "{{ .Values.deployment.image }}:{{ .Values.deployment.tag }}"
+        image: "{{ .Values.deployment.image }}{{- if .Values.deployment.digest }}@{{ .Values.deployment.digest }}{{- else }}:{{ .Values.deployment.tag }}{{ end }}"
         imagePullPolicy: {{ .Values.deployment.pullPolicy }}
         ports:
           - containerPort: {{ .Values.service.port }}

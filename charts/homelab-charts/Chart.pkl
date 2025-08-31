@@ -42,6 +42,7 @@ class Deployment {
   replicas: UInt(this >= 1) = 1
   image: String(length > 0)
   tag: String(length > 0) = "latest"
+  digest: String?
   pullPolicy: PullPolicy = "IfNotPresent"
   command: String(length > 0)?
   args: Listing<String(length > 0)>?
