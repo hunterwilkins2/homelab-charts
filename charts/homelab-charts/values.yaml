@@ -1,7 +1,6 @@
 name: nginx
 global:
-  labels:
-    test-label: this is a test
+  labels: {}
   annotations: {}
 deployment:
   enabled: true

@@ -2,6 +2,6 @@ apiVersion: v2
 name: homelab-charts
 description: A Umbrella chart for kubernetes homelab
 type: application
-version: 0.2.0
+version: 0.2.1
 appVersion: "1.0.0"
 

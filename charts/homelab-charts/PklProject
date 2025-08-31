@@ -1,0 +1,16 @@
+amends "pkl:Project"
+
+package {
+  name = "homelab-charts"
+  baseUri = "package://example.com/fruit"
+  version = "0.1.0"
+  packageZipUrl = "https://example.com/fruit@\(version).zip"
+}
+
+evaluatorSettings {
+  externalResourceReaders {
+    ["hide"] {
+      executable = "hide pkl"
+    }
+  }
+}
